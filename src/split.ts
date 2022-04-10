@@ -1,21 +1,26 @@
 import { PDFDocument } from "pdf-lib";
+const colors = require("colors");
 const homeDir = require("os").homedir();
 const AdmZip = require("adm-zip");
 const rimraf = require("rimraf");
 const fs = require("fs");
 const pdf = require("pdf-parse");
 
-const chkPath = "./out/checks";
-const eftPath = "./out/eft";
-const finalPath = `${homeDir}/Desktop/Output`;
+const inputFile = `${homeDir}/Desktop/input.pdf`;
+const finalPath = `${homeDir}/Desktop/Transmitty Output`;
 const outBase = "./out";
+const eftPath = "./out/eft";
+const chkPath = "./out/checks";
 
 const splitPDFs = async (pathToPdf: string) => {
+  console.log(colors.cyan("Splitting PDF..."));
   const docBytes = await fs.promises.readFile(pathToPdf);
   const pdfDoc = await PDFDocument.load(docBytes);
   const numberOfPages = pdfDoc.getPages().length;
+  console.log(`> Number of pages: ${numberOfPages}`);
 
   for (let i = 0; i < numberOfPages; i++) {
+    process.stdout.write(`> Progress:  ${i}/${numberOfPages} \r`);
     let fileName = "";
     const subDoc = await PDFDocument.create();
     const [copiedPage] = await subDoc.copyPages(pdfDoc, [i]);
@@ -50,22 +55,26 @@ const splitPDFs = async (pathToPdf: string) => {
       }
 
       await writePdfBytesToFile(
-        `tmp/${cleanFileName(fileName)}__${i + 1}.pdf`,
+        `tmp/${cleanFileName(fileName)}__${`${i + 1}`.padStart(5, "0")}.pdf`,
         pdfBytes
       );
     });
   }
 };
 
-const mergePDFs = async (pathToPDFFolder: string) => {
-  const files = fs.readdirSync(pathToPDFFolder);
-  const fileNames = files.map((file: any) => file.slice(0, -4));
-  const checkNumbers = fileNames.filter((file: any) => file.includes("Check-"));
-  const eftNumbers = fileNames.filter((file: any) => file.includes("EFT-"));
-  let checkCounter = 0;
-  let eftCounter = 0;
+const mergePDFs = async (tmp: string) => {
+  console.log("> Done Splitting PDFs...");
+  console.log(colors.cyan("Merging PDFs..."));
 
-  const checkGroupsObj = checkNumbers.reduce((acc: any, curr: any) => {
+  let chkCount = 0;
+
+  const files = fs.readdirSync(tmp);
+  const names = files.map((file: any) => file.slice(0, -4));
+
+  const checkNumbers = names.filter((file: any) => file.includes("Check-"));
+  const eftNumbers = names.filter((file: any) => file.includes("EFT-"));
+
+  const chkGrp = checkNumbers.reduce((acc: any, curr: any) => {
     const checkNumber = curr.split("-")[1];
     if (!acc[checkNumber]) acc[checkNumber] = [];
     acc[checkNumber].push(curr);
@@ -79,27 +88,32 @@ const mergePDFs = async (pathToPDFFolder: string) => {
     return acc;
   }, {});
 
-  console.log(`Checks Total: ${Object.keys(checkGroupsObj).length}`);
-  console.log(`EFTs Total: ${Object.keys(eftGroupsObj).length}`);
+  console.log(`> Checks Total: ${Object.keys(chkGrp).length}`);
+  console.log(`> EFTs Total: ${Object.keys(eftGroupsObj).length}`);
 
-  for (const key in checkGroupsObj) {
-    if (checkGroupsObj.hasOwnProperty(key)) {
-      checkCounter++;
-      let names = checkGroupsObj[key];
+  for (const key in chkGrp) {
+    if (chkGrp.hasOwnProperty(key)) {
+      chkCount++;
+
+      let names = chkGrp[key].sort();
+
       let mergedPDF = await PDFDocument.create();
 
-      for (const fileName of names) {
+      for (const name of names) {
         const pdfFile = await PDFDocument.load(
-          fs.readFileSync(`${pathToPDFFolder}/${fileName}.pdf`)
+          fs.readFileSync(`${tmp}/${name}.pdf`)
         );
-        const [copiedPage] = await mergedPDF.copyPages(pdfFile, [0]);
+        const [copiedPage] = await mergedPDF.copyPages(
+          pdfFile,
+          pdfFile.getPageIndices()
+        );
         mergedPDF.addPage(copiedPage);
       }
 
       const mergedPDFBytes = await mergedPDF.save();
 
       await writePdfBytesToFile(`${chkPath}/${names[0]}.pdf`, mergedPDFBytes);
-      if (checkCounter === Object.keys(checkGroupsObj).length) {
+      if (chkCount === Object.keys(chkGrp).length) {
         await mergeAllChecks();
       }
     }
@@ -107,30 +121,33 @@ const mergePDFs = async (pathToPDFFolder: string) => {
 
   for (const key in eftGroupsObj) {
     if (eftGroupsObj.hasOwnProperty(key)) {
-      eftCounter++;
-      let names = eftGroupsObj[key];
+      let names = eftGroupsObj[key].sort();
       let mergedPDF = await PDFDocument.create();
 
       for (const fileName of names) {
         const pdfFile = await PDFDocument.load(
-          fs.readFileSync(`${pathToPDFFolder}/${fileName}.pdf`)
+          fs.readFileSync(`${tmp}/${fileName}.pdf`)
         );
-        const [copiedPage] = await mergedPDF.copyPages(pdfFile, [0]);
+        const [copiedPage] = await mergedPDF.copyPages(
+          pdfFile,
+          pdfFile.getPageIndices()
+        );
         mergedPDF.addPage(copiedPage);
       }
 
       const mergedPDFBytes = await mergedPDF.save();
       await writePdfBytesToFile(`${eftPath}/${names[0]}.pdf`, mergedPDFBytes);
-      if (eftCounter === Object.keys(eftGroupsObj).length) {
-      }
     }
   }
 };
 
 const mergeAllChecks = async () => {
-  console.log("Merging checks...");
+  console.log(colors.cyan("Merging checks..."));
+
   await sleep(2000);
+
   const files = fs.readdirSync(chkPath);
+
   let mergedPDF = await PDFDocument.create();
 
   for (const fileName of files) {
@@ -143,13 +160,16 @@ const mergeAllChecks = async () => {
     );
     copiedPages.forEach((page) => mergedPDF.addPage(page));
   }
+
   const finalPDF = await mergedPDF.save();
+
   await writePdfBytesToFile(`${finalPath}/Checks_ALL.pdf`, finalPDF);
-  console.log("--> Generated Checks_ALL.pdf");
+
+  console.log(colors.green("--> Generated Checks_ALL.pdf"));
 };
 
 const zipFiles = async () => {
-  console.log("Zipping files...");
+  console.log(colors.yellow("Zipping files..."));
 
   await sleep(2000);
 
@@ -162,8 +182,8 @@ const zipFiles = async () => {
   EFT_ZIP.writeZip(`${finalPath}/EFTs.zip`);
   CHK_ZIP.writeZip(`${finalPath}/Checks.zip`);
 
-  console.log("--> Generated EFTs.zip");
-  console.log("--> Generated Checks.zip");
+  console.log(colors.green("--> Generated EFTs.zip"));
+  console.log(colors.green("--> Generated Checks.zip"));
 };
 
 const writePdfBytesToFile = async (fileName: string, pdfBytes: Uint8Array) => {
@@ -180,8 +200,18 @@ const cleanFileName = (fileName: string) => {
 };
 
 const sleep = (ms: number) => new Promise((resolve) => setTimeout(resolve, ms));
-
 (async () => {
+  console.clear();
+  console.log(colors.green("Starting..."));
+
+  if (!fs.existsSync(inputFile)) {
+    console.log(colors.yellow("⚠ Error"));
+    console.log(
+      colors.red("Input file not found! Must have `input.pdf` on desktop.")
+    );
+    process.exit();
+  }
+
   rimraf.sync("tmp");
   rimraf.sync("out");
   rimraf.sync(finalPath);
@@ -192,13 +222,16 @@ const sleep = (ms: number) => new Promise((resolve) => setTimeout(resolve, ms));
   if (!fs.existsSync(eftPath)) fs.mkdirSync(eftPath);
   if (!fs.existsSync(finalPath)) fs.mkdirSync(finalPath);
 
-  await splitPDFs("./seed/bcc.pdf");
+  await splitPDFs(inputFile);
   await mergePDFs("./tmp");
   await zipFiles();
 
   rimraf.sync("tmp");
   rimraf.sync("out");
 
-  console.log(`🏁 Done`);
-  console.log('Find the output files on your desktop in the "Output" folder');
+  console.log(colors.magenta(`🎇 Done! 🎇`));
+  console.log(colors.magenta(`${finalPath}`));
+  require("child_process").exec(
+    'start "" "C:\\Users\\PLUTO/Desktop/Transmitty Output"'
+  );
 })();
