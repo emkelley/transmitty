@@ -1,16 +1,16 @@
 import { PDFDocument } from "pdf-lib";
-const colors = require("colors");
-const homeDir = require("os").homedir();
-const AdmZip = require("adm-zip");
-const rimraf = require("rimraf");
 const fs = require("fs");
 const pdf = require("pdf-parse");
+const colors = require("colors");
+const rimraf = require("rimraf");
+const AdmZip = require("adm-zip");
+const homeDir = require("os").homedir();
 
-const inputFile = `${homeDir}/Desktop/input.pdf`;
-const finalPath = `${homeDir}/Desktop/Transmitty Output`;
 const outBase = "./out";
 const eftPath = "./out/eft";
 const chkPath = "./out/checks";
+const inputFile = `${homeDir}/Desktop/input.pdf`;
+const finalPath = `${homeDir}/Desktop/Transmitty Output`;
 
 const splitPDFs = async (pathToPdf: string) => {
   console.log(colors.cyan("Splitting PDF..."));
