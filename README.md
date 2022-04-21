@@ -16,6 +16,9 @@ Transmitty was built to aid one of my work processes; Taking these often large 1
 
 3 - Run the app: `yarn start` or `npm run start`
 
+4 - ???
+
+5 - Profit: Final output files will be placed on the Desktop in a folder called 'Transmitty Output'. The cmd window will close and the output folder will automatically be opened.
 ### Tips
 
 For quick access, create a batch file on your Desktop that moves into the project directory and runs the npm command to start it. Something like this adapted for your use:
