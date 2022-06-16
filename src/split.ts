@@ -9,8 +9,20 @@ const homeDir = require("os").homedir();
 const outBase = "./out";
 const eftPath = "./out/eft";
 const chkPath = "./out/checks";
-const inputFile = `${homeDir}/Desktop/input.pdf`;
 const finalPath = `${homeDir}/Desktop/Transmitty Output`;
+
+const findInputFile = (directory: string) => {
+  const files = fs.readdirSync(directory);
+  const pdfFiles = files.filter((file: string) => file.endsWith(".pdf"));
+  for (const file of pdfFiles) {
+    const filePath = `${directory}/${file}`;
+    if (file.includes("Transmittal")) {
+      return filePath;
+    }
+  }
+};
+
+const inputFile = findInputFile(`${homeDir}/Desktop`);
 
 const splitPDFs = async (pathToPdf: string) => {
   console.log(colors.cyan("Splitting PDF..."));
@@ -200,16 +212,19 @@ const cleanFileName = (fileName: string) => {
 };
 
 const sleep = (ms: number) => new Promise((resolve) => setTimeout(resolve, ms));
+
 (async () => {
   console.clear();
   console.log(colors.green("Starting..."));
 
-  if (!fs.existsSync(inputFile)) {
+  if (!inputFile) {
     console.log(colors.yellow("⚠ Error"));
     console.log(
-      colors.red("Input file not found! Must have `input.pdf` on desktop.")
+      colors.red(
+        "No transmittal file was found on your Desktop! Must have PDF with 'Transmittal' somewhere in the name on your Desktop."
+      )
     );
-    process.exit();
+    return;
   }
 
   rimraf.sync("tmp");
@@ -226,8 +241,13 @@ const sleep = (ms: number) => new Promise((resolve) => setTimeout(resolve, ms));
   await mergePDFs("./tmp");
   await zipFiles();
 
+  console.log(colors.gray("Deleting up temporary files..."));
   rimraf.sync("tmp");
+  console.log(colors.gray("--x Deleted tmp folder"));
   rimraf.sync("out");
+  console.log(colors.gray("--x Deleted out folder"));
+  rimraf.sync(inputFile);
+  console.log(colors.gray("--x Deleted input file"));
 
   console.log(colors.magenta(`🎇 Done! 🎇`));
   console.log(colors.magenta(`${finalPath}`));

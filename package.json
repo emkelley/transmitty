@@ -4,6 +4,7 @@
   "description": "This utility is a Node app that will split a U.S. healthcare payment transmittal file, separate checks and eft files, and zip them.",
   "scripts": {
     "build": "tsc",
+    "prod": "node build/split.js",
     "start": "npm run build && node build/split.js",
     "clean": "rimraf out && rimraf tmp && rimraf build",
     "dev": "nodemon"
