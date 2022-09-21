@@ -43,7 +43,6 @@ const splitPDFs = async (pathToPdf: string) => {
         const text = data.text.replace(".", "");
         const textArr = text.split("\n");
         const officeName = cleanFileName(`${textArr[8]}-${textArr[9]}`);
-        console.log(`> Office Name: ${officeName}`);
 
         if (text.includes("Check #")) {
           const checkNumber = Number(
@@ -252,7 +251,7 @@ const sleep = (ms: number) => new Promise((resolve) => setTimeout(resolve, ms));
   await mergePDFs("./tmp");
   await zipFiles();
 
-  console.log(colors.gray("Deleting up temporary files..."));
+  console.log(colors.gray("Cleaning up temporary files..."));
   rimraf.sync("tmp");
   console.log(colors.gray("--x Deleted tmp folder"));
   rimraf.sync("out");
