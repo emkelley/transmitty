@@ -10,9 +10,11 @@
     "dev": "nodemon"
   },
   "dependencies": {
+    "@types/figlet": "^1.5.4",
     "@types/pdf-parse": "^1.1.1",
     "adm-zip": "^0.5.9",
     "colors": "^1.4.0",
+    "figlet": "^1.5.2",
     "pdf-lib": "^1.17.1",
     "pdf-parse": "^1.1.1",
     "rimraf": "^3.0.2"

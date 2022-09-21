@@ -60,6 +60,11 @@
   resolved "https://registry.npmjs.org/@tsconfig/node16/-/node16-1.0.2.tgz"
   integrity sha512-eZxlbI8GZscaGS7kkc/trHTT5xgrjH3/1n2JDwusC9iahPKWMRvRjJSAN5mCXviuTGQ/lHnhvv8Q1YTpnfz9gA==
 
+"@types/figlet@^1.5.4":
+  version "1.5.4"
+  resolved "https://registry.yarnpkg.com/@types/figlet/-/figlet-1.5.4.tgz#54a426d63e921a9bca44102c5b1b1f206fa56d93"
+  integrity sha512-cskPTju7glYgzvkJy/hftqw7Fen3fsd0yrPOqcbBLJu+YdDQuA438akS1g+2XVKGzsQOnXGV2I9ePv6xUBnKMQ==
+
 "@types/glob@*":
   version "7.2.0"
   resolved "https://registry.npmjs.org/@types/glob/-/glob-7.2.0.tgz"
@@ -341,6 +346,11 @@ escape-goat@^2.0.0:
   version "2.1.1"
   resolved "https://registry.npmjs.org/escape-goat/-/escape-goat-2.1.1.tgz"
   integrity sha512-8/uIhbG12Csjy2JEW7D9pHbreaVaS/OpN3ycnyvElTdwM5n6GY6W6e2IPemfvGZeUMqZ9A/3GqIZMgKnBhAw/Q==
+
+figlet@^1.5.2:
+  version "1.5.2"
+  resolved "https://registry.yarnpkg.com/figlet/-/figlet-1.5.2.tgz#dda34ff233c9a48e36fcff6741aeb5bafe49b634"
+  integrity sha512-WOn21V8AhyE1QqVfPIVxe3tupJacq1xGkPTB4iagT6o+P2cAgEOOwIxMftr4+ZCTI6d551ij9j61DFr0nsP2uQ==
 
 fill-range@^7.0.1:
   version "7.0.1"

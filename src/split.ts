@@ -1,4 +1,5 @@
 import { PDFDocument } from "pdf-lib";
+import figlet from "figlet";
 const fs = require("fs");
 const pdf = require("pdf-parse");
 const colors = require("colors");
@@ -21,7 +22,6 @@ const findInputFile = (directory: string) => {
     }
   }
 };
-
 const inputFile = findInputFile(`${homeDir}/Desktop`);
 
 const splitPDFs = async (pathToPdf: string) => {
@@ -32,45 +32,53 @@ const splitPDFs = async (pathToPdf: string) => {
   console.log(`> Number of pages: ${numberOfPages}`);
 
   for (let i = 0; i < numberOfPages; i++) {
-    process.stdout.write(`> Progress:  ${i}/${numberOfPages} \r`);
     let fileName = "";
     const subDoc = await PDFDocument.create();
     const [copiedPage] = await subDoc.copyPages(pdfDoc, [i]);
     subDoc.addPage(copiedPage);
     const pdfBytes = await subDoc.save();
 
-    await pdf(pdfBytes).then(async (data: any) => {
-      const text = data.text.replace(".", "");
-      const textArr = text.split("\n");
-      const officeName = cleanFileName(`${textArr[8]}-${textArr[9]}`);
+    await pdf(pdfBytes)
+      .then(async (data: any) => {
+        const text = data.text.replace(".", "");
+        const textArr = text.split("\n");
+        const officeName = cleanFileName(`${textArr[8]}-${textArr[9]}`);
+        console.log(`> Office Name: ${officeName}`);
 
-      if (text.includes("Check #")) {
-        const checkNumber = Number(
-          text
-            .split("Check #:")[1]
-            .split(" ")[0]
-            .replace("Check", "")
-            .replace(".", "")
+        if (text.includes("Check #")) {
+          const checkNumber = Number(
+            text
+              .split("Check #:")[1]
+              .split(" ")[0]
+              .replace("Check", "")
+              .replace(".", "")
+              .replace("/", "")
+          );
+          fileName = `Check-${checkNumber}-${officeName}`;
+        }
+
+        if (text.includes("EFT #")) {
+          const eftNumber = Number(
+            text
+              .split("EFT #:")[1]
+              .split(" ")[0]
+              .replace("Check", "")
+              .replace(".", "")
+              .replace("/", "")
+          );
+          fileName = `EFT-${eftNumber}-${officeName}`;
+        }
+
+        await writePdfBytesToFile(
+          `tmp/${cleanFileName(fileName)}__${`${i + 1}`.padStart(5, "0")}.pdf`,
+          pdfBytes
         );
-        fileName = `Check-${checkNumber}-${officeName}`;
-      }
-
-      if (text.includes("EFT #")) {
-        const eftNumber = Number(
-          text
-            .split("EFT #:")[1]
-            .split(" ")[0]
-            .replace("Check", "")
-            .replace(".", "")
-        );
-        fileName = `EFT-${eftNumber}-${cleanFileName(officeName)}`;
-      }
-
-      await writePdfBytesToFile(
-        `tmp/${cleanFileName(fileName)}__${`${i + 1}`.padStart(5, "0")}.pdf`,
-        pdfBytes
-      );
-    });
+        process.stdout.write(`> Progress:  ${i}/${numberOfPages} \r`);
+      })
+      .catch((err: any) => {
+        console.log("fuck");
+        console.log(err);
+      });
   }
 };
 
@@ -113,7 +121,7 @@ const mergePDFs = async (tmp: string) => {
 
       for (const name of names) {
         const pdfFile = await PDFDocument.load(
-          fs.readFileSync(`${tmp}/${name}.pdf`)
+          fs.readFileSync(`tmp/${name}.pdf`)
         );
         const [copiedPage] = await mergedPDF.copyPages(
           pdfFile,
@@ -138,7 +146,7 @@ const mergePDFs = async (tmp: string) => {
 
       for (const fileName of names) {
         const pdfFile = await PDFDocument.load(
-          fs.readFileSync(`${tmp}/${fileName}.pdf`)
+          fs.readFileSync(`tmp/${fileName}.pdf`)
         );
         const [copiedPage] = await mergedPDF.copyPages(
           pdfFile,
@@ -208,6 +216,7 @@ const cleanFileName = (fileName: string) => {
     .replace("#", "")
     .replace(".", "")
     .replace(",", "")
+    .replace("/", "-")
     .replace(/\s/g, "-");
 };
 
@@ -215,7 +224,9 @@ const sleep = (ms: number) => new Promise((resolve) => setTimeout(resolve, ms));
 
 (async () => {
   console.clear();
-  console.log(colors.green("Starting..."));
+  console.log(
+    colors.cyan(figlet.textSync("Transmitty", { horizontalLayout: "full" }))
+  );
 
   if (!inputFile) {
     console.log(colors.yellow("⚠ Error"));
@@ -237,7 +248,7 @@ const sleep = (ms: number) => new Promise((resolve) => setTimeout(resolve, ms));
   if (!fs.existsSync(eftPath)) fs.mkdirSync(eftPath);
   if (!fs.existsSync(finalPath)) fs.mkdirSync(finalPath);
 
-  await splitPDFs(inputFile);
+  await splitPDFs(inputFile as string);
   await mergePDFs("./tmp");
   await zipFiles();
 
@@ -252,6 +263,6 @@ const sleep = (ms: number) => new Promise((resolve) => setTimeout(resolve, ms));
   console.log(colors.magenta(`🎇 Done! 🎇`));
   console.log(colors.magenta(`${finalPath}`));
   require("child_process").exec(
-    'start "" "C:\\Users\\PLUTO/Desktop/Transmitty Output"'
+    'start "" "C:\\Users\\PLUTO\\Desktop\\Transmitty Output"'
   );
 })();
