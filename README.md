@@ -13,7 +13,7 @@ Transmitty was built to aid one of my work processes; Taking these often large 1
 
 1 - Install the app's dependencies: `yarn` or `npm install`
 
-2 - The source PDF to be processed is expected to be on the Desktop and be named `input.pdf`
+2 - The source PDF to be processed is expected to be on the Desktop and have the word Transmittal somewhere in the file name.
 
 3 - Run the app: `yarn start` or `npm run start`
 
