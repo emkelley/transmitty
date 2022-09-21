@@ -2,7 +2,8 @@
 
 Transmitty is a Node app that will split a U.S. healthcare EFT/Payment Transmittal files, separate Checks and EFTs, and zip them for later processing.
 
-Transmitty was built to aid one of my work processes; Taking these often large 3,000+ page PDFs filled with mixed Checks and EFT payments, and processing them into a workable state for our Finance department. It was extremely tedious and time-consuming, so I automated it. If you want to use it yourself it will require some modification for your needs. Definitely not my best work but it gets the job done.
+Transmitty was built to aid one of my work processes; Taking these often large 3,000+ page PDFs filled with mixed Checks and EFT payments, and processing them into a workable state for our Finance department. It was extremely tedious and time-consuming, so I automated it. If you want to use it yourself it will require some modification for your needs.
+
 
 ![image](https://user-images.githubusercontent.com/11874169/191545055-30efd901-2ecf-48ac-ae16-7cb0cecadced.png)
 
