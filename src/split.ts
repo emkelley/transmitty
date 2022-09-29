@@ -13,6 +13,7 @@ const chkPath = "./out/checks";
 const finalPath = `${homeDir}/Desktop/Transmitty Output`;
 
 const findInputFile = (directory: string) => {
+  console.log(homeDir);
   const files = fs.readdirSync(directory);
   const pdfFiles = files.filter((file: string) => file.endsWith(".pdf"));
   for (const file of pdfFiles) {
@@ -258,10 +259,7 @@ const sleep = (ms: number) => new Promise((resolve) => setTimeout(resolve, ms));
   console.log(colors.gray("--x Deleted out folder"));
   rimraf.sync(inputFile);
   console.log(colors.gray("--x Deleted input file"));
-
   console.log(colors.magenta(`🎇 Done! 🎇`));
-  console.log(colors.magenta(`${finalPath}`));
-  require("child_process").exec(
-    'start "" "C:\\Users\\PLUTO\\Desktop\\Transmitty Output"'
-  );
+  console.log(colors.magenta(`${homeDir}/Desktop/Transmitty Output`));
+  require("child_process").exec(`start "" "${finalPath}"`);
 })();
