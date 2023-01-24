@@ -6,7 +6,7 @@ const colors = require("colors");
 const rimraf = require("rimraf");
 const AdmZip = require("adm-zip");
 const homeDir = require("os").homedir();
-
+const notifier = require("node-notifier");
 const outBase = "./out";
 const eftPath = "./out/eft";
 const chkPath = "./out/checks";
@@ -235,6 +235,11 @@ const sleep = (ms: number) => new Promise((resolve) => setTimeout(resolve, ms));
         "No transmittal file was found on your Desktop! Must have PDF with 'Transmittal' somewhere in the name on your Desktop."
       )
     );
+    notifier.notify({
+      title: 'Error: "Transmittal" PDF not found!',
+      message:
+        "No transmittal file was found on your Desktop! Must have PDF with 'Transmittal' somewhere in the name on your Desktop.",
+    });
     return;
   }
 
