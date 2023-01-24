@@ -264,6 +264,10 @@ const sleep = (ms: number) => new Promise((resolve) => setTimeout(resolve, ms));
   console.log(colors.gray("--x Deleted out folder"));
   rimraf.sync(inputFile);
   console.log(colors.gray("--x Deleted input file"));
+  notifier.notify({
+    title: "Success!",
+    message: "Transmitty completed successfully with no errors!",
+  });
   console.log(colors.magenta(`🎇 Done! 🎇`));
   console.log(colors.magenta(`${homeDir}/Desktop/Transmitty Output`));
   require("child_process").exec(`start "" "${finalPath}"`);
