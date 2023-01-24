@@ -239,6 +239,7 @@ const sleep = (ms: number) => new Promise((resolve) => setTimeout(resolve, ms));
       title: 'Error: "Transmittal" PDF not found!',
       message:
         "No transmittal file was found on your Desktop! Must have PDF with 'Transmittal' somewhere in the name on your Desktop.",
+      timeout: 60,
     });
     return;
   }
@@ -267,6 +268,7 @@ const sleep = (ms: number) => new Promise((resolve) => setTimeout(resolve, ms));
   notifier.notify({
     title: "Success!",
     message: "Transmitty completed successfully with no errors!",
+    timeout: 60,
   });
   console.log(colors.magenta(`🎇 Done! 🎇`));
   console.log(colors.magenta(`${homeDir}/Desktop/Transmitty Output`));
