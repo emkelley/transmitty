@@ -12,19 +12,16 @@ Transmitty was built to aid one of my work processes; Taking these often large 3
 
 0 - To use this utility, ensure your system has Node.js >= 16.x installed before continuing.
 
-1 - Install the app's dependencies: `yarn` or `npm install`
+1 - Clone the repo and install the app's dependencies: `yarn` or `npm install`
 
 2 - The source PDF to be processed is expected to be on the Desktop and have the word Transmittal somewhere in the file name.
 
-3 - Run the app: `yarn start` or `npm run start`
+3 - Run the app: `yarn start` or `npm run start` when in the app's directory.
 
-4 - ???
+4 - Wait for the process to complete. This can take a while depending on the size of the PDF.
 
-5 - Profit: Final output files will be placed on the Desktop in a folder called 'Transmitty Output'. The cmd window will close and the output folder will automatically be opened.
+5 - Final output files will be placed on the Desktop in a folder called 'Transmitty Output'. The cmd window will close and the output folder will automatically be opened.
+
 ### Tips
 
-For quick access, create a batch file on your Desktop that moves into the project directory and runs the npm command to start it. Something like this adapted for your use:
-```bat
-cd /D E:\Master Projects\transmitty
-yarn start
-```
+For quick access, create a batch file on your Desktop that moves into the project directory and runs the npm command to start it.
