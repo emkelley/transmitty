@@ -55,28 +55,36 @@ const splitPDFs = async (pathToPdf: string) => {
               .replace("/", "")
           );
           fileName = `Check-${checkNumber}-${officeName}`;
+          await writePdfBytesToFile(
+            `tmp/${cleanFileName(fileName)}__${`${i + 1}`.padStart(
+              5,
+              "0"
+            )}.pdf`,
+            pdfBytes
+          );
+          process.stdout.write(`> Progress:  ${i}/${numberOfPages} \r`);
         }
 
         if (text.includes("EFT #")) {
-          const eftNumber = Number(
-            text
-              .split("EFT #:")[1]
-              .split(" ")[0]
-              .replace("Check", "")
-              .replace(".", "")
-              .replace("/", "")
-          );
+          const eftNumber = text
+            .split("EFT #:")[1]
+            .split(" ")[0]
+            .replace("EFT", "")
+            .replace(".", "")
+            .replace("/", "");
           fileName = `EFT-${eftNumber}-${officeName}`;
+          await writePdfBytesToFile(
+            `tmp/${cleanFileName(fileName)}__${`${i + 1}`.padStart(
+              5,
+              "0"
+            )}.pdf`,
+            pdfBytes
+          );
+          process.stdout.write(`> Progress:  ${i}/${numberOfPages} \r`);
         }
-
-        await writePdfBytesToFile(
-          `tmp/${cleanFileName(fileName)}__${`${i + 1}`.padStart(5, "0")}.pdf`,
-          pdfBytes
-        );
-        process.stdout.write(`> Progress:  ${i}/${numberOfPages} \r`);
       })
       .catch((err: any) => {
-        console.log("fuck");
+        console.log("error splitting pdf");
         console.log(err);
       });
   }
@@ -263,8 +271,8 @@ const sleep = (ms: number) => new Promise((resolve) => setTimeout(resolve, ms));
   console.log(colors.gray("--x Deleted tmp folder"));
   rimraf.sync("out");
   console.log(colors.gray("--x Deleted out folder"));
-  rimraf.sync(inputFile);
-  console.log(colors.gray("--x Deleted input file"));
+  // rimraf.sync(inputFile);
+  // console.log(colors.gray("--x Deleted input file"));
   notifier.notify({
     title: "Success!",
     message: "Transmitty completed successfully with no errors!",
